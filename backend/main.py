@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, text
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -30,6 +30,18 @@ class Product(Base):
     description = Column(String, index=True, nullable=True)
     price = Column(Integer)
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String, index=True, nullable=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    is_active = Column(Boolean, default=True)
+    role = Column(String, default="customer")
+    # created_at is omitted for simplicity or we can add it
+    # created_at = Column(DateTime)
+
 # Create tables
 Base.metadata.create_all(bind=engine)
 
@@ -44,6 +56,23 @@ class ProductResponse(BaseModel):
     name: str
     description: Optional[str] = None
     price: int
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class UserCreate(BaseModel):
+    name: Optional[str] = None
+    email: str
+    password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: int
+    full_name: Optional[str] = None
+    email: str
+    role: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -80,6 +109,28 @@ def create_product(product: ProductCreate, db: Session = Depends(get_db)):
 def get_products(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     products = db.query(Product).offset(skip).limit(limit).all()
     return products
+
+@app.post("/api/auth/sign-up", response_model=UserResponse)
+def sign_up(user: UserCreate, db: Session = Depends(get_db)):
+    # Check if user already exists
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    new_user = User(full_name=user.name, email=user.email, hashed_password=user.password, role="customer", is_active=True)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+@app.post("/api/auth/sign-in")
+def sign_in(user: UserLogin, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if not db_user or db_user.hashed_password != user.password:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # In a real app, return a JWT token here
+    return {"message": "Login successful", "user": {"id": db_user.id, "name": db_user.full_name, "email": db_user.email, "role": db_user.role}}
 
 @app.get("/api/db-test")
 def test_db_connection():
