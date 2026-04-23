@@ -13,6 +13,13 @@ export const API_ENDPOINTS = {
     SIGN_UP: '/api/auth/sign-up'
   },
   WATCHES: {
-    SEARCH: '/search-watches-by-name'
+    SEARCH: '/search-watches-by-name',
+    MAKES: '/make',
+    MODELS: (makeId: number) => `/model/${makeId}`,
+    WATCHES_BY_MAKE: (makeId: number, page: number, limit: number) => 
+      `/watches/make/${makeId}/page/${page}/limit/${limit}`,
+    WATCHES_BY_MODEL: (modelId: number, page: number, limit: number) => 
+      `/watches/model/${modelId}/page/${page}/limit/${limit}`,
+    WATCH_DETAILS: (watchId: number) => `/watch/${watchId}`
   }
 } as const;

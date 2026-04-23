@@ -67,14 +67,31 @@ class RapidApiClient {
     this.host = host;
   }
 
+  private getHeaders(contentType: string = 'application/json'): HeadersInit {
+    return {
+      'Content-Type': contentType,
+      'x-rapidapi-host': this.host,
+      'x-rapidapi-key': this.apiKey,
+    };
+  }
+
+  async get<T>(endpoint: string): Promise<T> {
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    return response.json();
+  }
+
   async post<T>(endpoint: string, body: URLSearchParams): Promise<T> {
     const response = await fetch(`${this.baseURL}${endpoint}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'x-rapidapi-host': this.host,
-        'x-rapidapi-key': this.apiKey,
-      },
+      headers: this.getHeaders('application/x-www-form-urlencoded'),
       body: body.toString(),
     });
 

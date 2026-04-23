@@ -1,4 +1,6 @@
 import React from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { Logo } from '../atoms/Logo';
 import { Toggle } from '../atoms/Toggle';
 import { UserInfo } from '../molecules/UserInfo';
@@ -21,13 +23,41 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleDarkMode,
   onLogout
 }) => {
+  const pathname = usePathname();
+  
   return (
     <header className="w-full bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 py-4 px-6 md:px-10 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-      <div className="flex items-center gap-2">
-        <Logo />
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight hidden sm:block">
-          {title}
-        </h1>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2">
+          <Logo />
+          <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight hidden sm:block">
+            {title}
+          </h1>
+        </div>
+        
+        {/* Navigation */}
+        <nav className="hidden md:flex items-center gap-2">
+          <Link
+            href="/"
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              pathname === '/'
+                ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+            }`}
+          >
+            Search
+          </Link>
+          <Link
+            href="/browse"
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              pathname === '/browse'
+                ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+            }`}
+          >
+            Browse
+          </Link>
+        </nav>
       </div>
       
       <div className="flex items-center gap-4 md:gap-6">
