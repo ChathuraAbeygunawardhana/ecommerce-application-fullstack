@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/templates/AuthLayout";
 import { AuthForm } from "@/components/organisms/AuthForm";
+import { useSignIn } from "@/lib/hooks/useAuth";
+import type { AuthResponse } from "@/lib/services/authService";
 
 export default function SignInPage() {
     const router = useRouter();
@@ -12,34 +14,26 @@ export default function SignInPage() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const signInMutation = useSignIn();
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
         setSuccess("");
         
-        try {
-            const response = await fetch("http://localhost:8000/api/auth/sign-in", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
+        signInMutation.mutate(
+            { email, password },
+            {
+                onSuccess: (data: AuthResponse) => {
+                    setSuccess("Signed in successfully!");
+                    console.log("Sign in success:", data);
+                    router.push("/");
                 },
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || "Failed to sign in");
+                onError: (err: Error) => {
+                    setError(err.message);
+                }
             }
-
-            const data = await response.json();
-            setSuccess("Signed in successfully!");
-            console.log("Sign in success:", data);
-            
-            localStorage.setItem("user", JSON.stringify(data.user));
-            router.push("/");
-        } catch (err) {
-            setError((err as Error).message);
-        }
+        );
     };
 
     const formFields = [

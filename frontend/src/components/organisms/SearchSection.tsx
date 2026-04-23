@@ -6,7 +6,7 @@ interface SearchSectionProps {
   subtitle: string;
   searchValue: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSearchSubmit: (e: React.FormEvent) => void;
+  onSearchSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   placeholder?: string;
   isLoading?: boolean;
 }

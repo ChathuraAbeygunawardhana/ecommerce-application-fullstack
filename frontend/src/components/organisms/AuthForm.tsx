@@ -13,7 +13,7 @@ interface FormFieldConfig {
 
 interface AuthFormProps {
   fields: FormFieldConfig[];
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   submitLabel: string;
   error?: string;
   success?: string;

@@ -1,27 +1,17 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MainLayout } from "@/components/templates/MainLayout";
 import { SearchSection } from "@/components/organisms/SearchSection";
 import { WatchGrid } from "@/components/organisms/WatchGrid";
 import { Spinner } from "@/components/atoms/Spinner";
+import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
+import { useSearchWatches } from "@/lib/hooks/useWatches";
 
 interface User {
   name: string;
   email: string;
-}
-
-interface Watch {
-  id?: string;
-  watchId?: string;
-  makeName: string;
-  modelName: string;
-  familyName?: string;
-  yearProducedName?: string;
-  reference?: string;
-  movementName?: string;
-  priceInEuro?: number;
 }
 
 export default function Home() {
@@ -30,10 +20,14 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   
   const [searchTerm, setSearchTerm] = useState("Rolex");
-  const [watches, setWatches] = useState<Watch[]>([]);
-  const [loadingWatches, setLoadingWatches] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  const { data: watches = [], isLoading: loadingWatches, error } = useSearchWatches({
+    searchTerm,
+    page: 1,
+    limit: 20
+  }, !loading);
 
   useEffect(() => {
     const isDark = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -73,56 +67,22 @@ export default function Home() {
     }
   }, [router]);
 
-  const fetchWatches = useCallback(async (query: string) => {
-    if (!query) return;
-    setLoadingWatches(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams();
-      params.append('searchTerm', query);
-      params.append('page', '1');
-      params.append('limit', '20');
-
-      const res = await fetch('https://watch-database1.p.rapidapi.com/search-watches-by-name', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'x-rapidapi-host': 'watch-database1.p.rapidapi.com',
-          'x-rapidapi-key': '970b4fa26fmsh397f674876f86dap1a656cjsna4e0c2863761'
-        },
-        body: params.toString()
-      });
-      
-      if (!res.ok) {
-        throw new Error('Failed to fetch watches');
-      }
-
-      const data = await res.json();
-      setWatches(data.watches || []);
-    } catch (err) {
-      console.error(err);
-      setError((err as Error).message || 'An error occurred while fetching watches.');
-    } finally {
-      setLoadingWatches(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!loading) {
-      fetchWatches("Rolex");
-    }
-  }, [loading, fetchWatches]);
-
   const handleLogout = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const confirmLogout = () => {
     localStorage.removeItem("user");
+    setShowLogoutDialog(false);
     router.push("/sign-in");
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const cancelLogout = () => {
+    setShowLogoutDialog(false);
+  };
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      fetchWatches(searchTerm.trim());
-    }
   };
 
   if (loading) {
@@ -134,31 +94,43 @@ export default function Home() {
   }
 
   return (
-    <MainLayout
-      userName={user?.name || "User"}
-      userEmail={user?.email || ""}
-      isDarkMode={isDarkMode}
-      onToggleDarkMode={toggleDarkMode}
-      onLogout={handleLogout}
-    >
-      <SearchSection
-        title="Discover Premium Timepieces"
-        subtitle="Explore our extensive collection of luxury watches."
-        searchValue={searchTerm}
-        onSearchChange={(e) => setSearchTerm(e.target.value)}
-        onSearchSubmit={handleSearch}
-        placeholder="Search by make or model (e.g., Rolex, Omega)..."
-        isLoading={loadingWatches}
-      />
-
-      <section className="w-full">
-        <WatchGrid
-          watches={watches}
+    <>
+      <MainLayout
+        userName={user?.name || "User"}
+        userEmail={user?.email || ""}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={toggleDarkMode}
+        onLogout={handleLogout}
+      >
+        <SearchSection
+          title="Discover Premium Timepieces"
+          subtitle="Explore our extensive collection of luxury watches."
+          searchValue={searchTerm}
+          onSearchChange={(e) => setSearchTerm(e.target.value)}
+          onSearchSubmit={handleSearch}
+          placeholder="Search by make or model (e.g., Rolex, Omega)..."
           isLoading={loadingWatches}
-          error={error}
-          searchTerm={searchTerm}
         />
-      </section>
-    </MainLayout>
+
+        <section className="w-full">
+          <WatchGrid
+            watches={watches}
+            isLoading={loadingWatches}
+            error={error?.message || null}
+            searchTerm={searchTerm}
+          />
+        </section>
+      </MainLayout>
+
+      <ConfirmDialog
+        isOpen={showLogoutDialog}
+        title="Sign Out"
+        message="Are you sure you want to sign out?"
+        confirmLabel="Sign Out"
+        cancelLabel="Cancel"
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
+      />
+    </>
   );
 }

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { AuthLayout } from "@/components/templates/AuthLayout";
 import { AuthForm } from "@/components/organisms/AuthForm";
+import { useSignUp } from "@/lib/hooks/useAuth";
+import type { AuthResponse } from "@/lib/services/authService";
 
 export default function SignUpPage() {
     const [name, setName] = useState("");
@@ -11,35 +13,28 @@ export default function SignUpPage() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const signUpMutation = useSignUp();
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
         setSuccess("");
 
-        try {
-            const response = await fetch("http://localhost:8000/api/auth/sign-up", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
+        signUpMutation.mutate(
+            { name, email, password },
+            {
+                onSuccess: (data: AuthResponse) => {
+                    setSuccess("Account created successfully! You can now sign in.");
+                    console.log("Sign up success:", data);
+                    setName("");
+                    setEmail("");
+                    setPassword("");
                 },
-                body: JSON.stringify({ name, email, password }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || "Failed to sign up");
+                onError: (err: Error) => {
+                    setError(err.message);
+                }
             }
-
-            const data = await response.json();
-            setSuccess("Account created successfully! You can now sign in.");
-            console.log("Sign up success:", data);
-            
-            setName("");
-            setEmail("");
-            setPassword("");
-        } catch (err) {
-            setError((err as Error).message);
-        }
+        );
     };
 
     const formFields = [
