@@ -1,13 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { BrowseByMake } from "./BrowseByMake";
 import { BrowseByModel } from "./BrowseByModel";
 
 type TabType = "makes" | "models";
 
 export const BrowseWatches: React.FC = () => {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  
   const [activeTab, setActiveTab] = useState<TabType>("makes");
+
+  useEffect(() => {
+    if (tabParam === 'models') {
+      setActiveTab('models');
+    }
+  }, [tabParam]);
 
   return (
     <div className="w-full space-y-6">

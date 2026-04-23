@@ -28,12 +28,12 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="w-full bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 py-4 px-6 md:px-10 flex justify-between items-center sticky top-0 z-10 shadow-sm">
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <Logo />
           <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight hidden sm:block">
             {title}
           </h1>
-        </div>
+        </Link>
         
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-2">
@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
-            Search
+            Home
           </Link>
           <Link
             href="/browse"

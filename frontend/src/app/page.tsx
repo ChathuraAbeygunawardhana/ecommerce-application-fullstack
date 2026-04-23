@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MainLayout } from "@/components/templates/MainLayout";
-import { SearchSection } from "@/components/organisms/SearchSection";
-import { WatchGrid } from "@/components/organisms/WatchGrid";
 import { Spinner } from "@/components/atoms/Spinner";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
-import { useSearchWatches } from "@/lib/hooks/useWatches";
+import { FeaturedWatches } from "@/components/organisms/FeaturedWatches";
+import { BrowseCallToAction } from "@/components/organisms/BrowseCallToAction";
 
 interface User {
   name: string;
@@ -18,16 +17,8 @@ export default function Home() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  const [searchTerm, setSearchTerm] = useState("Rolex");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-
-  const { data: watches = [], isLoading: loadingWatches, error } = useSearchWatches({
-    searchTerm,
-    page: 1,
-    limit: 20
-  }, !loading);
 
   useEffect(() => {
     const isDark = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -81,10 +72,6 @@ export default function Home() {
     setShowLogoutDialog(false);
   };
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
@@ -102,24 +89,21 @@ export default function Home() {
         onToggleDarkMode={toggleDarkMode}
         onLogout={handleLogout}
       >
-        <SearchSection
-          title="Discover Premium Timepieces"
-          subtitle="Explore our extensive collection of luxury watches."
-          searchValue={searchTerm}
-          onSearchChange={(e) => setSearchTerm(e.target.value)}
-          onSearchSubmit={handleSearch}
-          placeholder="Search by make or model (e.g., Rolex, Omega)..."
-          isLoading={loadingWatches}
-        />
-
-        <section className="w-full">
-          <WatchGrid
-            watches={watches}
-            isLoading={loadingWatches}
-            error={error?.message || null}
-            searchTerm={searchTerm}
-          />
+        {/* Hero Section */}
+        <section className="text-center space-y-4 py-8">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-zinc-900 dark:text-white">
+            Discover Premium Timepieces
+          </h1>
+          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+            Explore our curated collection of luxury watches from the world's finest manufacturers
+          </p>
         </section>
+
+        {/* Browse Call to Action */}
+        <BrowseCallToAction />
+
+        {/* Featured Watches */}
+        <FeaturedWatches />
       </MainLayout>
 
       <ConfirmDialog
