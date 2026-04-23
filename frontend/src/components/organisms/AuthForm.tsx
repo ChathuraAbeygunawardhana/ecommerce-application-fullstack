@@ -1,7 +1,7 @@
 import React from 'react';
-import { FormField } from '../molecules/FormField';
-import { Button } from '../atoms/Button';
-import { Alert } from '../atoms/Alert';
+import { FormField } from '@/components/molecules/FormField';
+import { Button } from '@/components/atoms/Button';
+import { Alert } from '@/components/atoms/Alert';
 
 interface FormFieldConfig {
   label: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { SearchBar } from '../molecules/SearchBar';
+import { SearchBar } from '@/components/molecules/SearchBar';
 
 interface SearchSectionProps {
   title: string;

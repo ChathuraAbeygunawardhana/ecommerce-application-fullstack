@@ -1,5 +1,5 @@
 import React from 'react';
-import { WatchCard } from '../molecules/WatchCard';
+import { WatchCard } from '@/components/molecules/WatchCard';
 
 interface Watch {
   id?: string;

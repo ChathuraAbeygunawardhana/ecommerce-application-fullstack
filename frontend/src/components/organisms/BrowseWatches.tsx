@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { BrowseByMake } from "./BrowseByMake";
-import { BrowseByModel } from "./BrowseByModel";
+import { BrowseByMake } from "@/components/organisms/BrowseByMake";
+import { BrowseByModel } from "@/components/organisms/BrowseByModel";
 
 type TabType = "makes" | "models";
 

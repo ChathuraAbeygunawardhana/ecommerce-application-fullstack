@@ -46,7 +46,7 @@ export const useWatchesByMake = (
     queryKey: ['watchesByMake', makeId, page, limit],
     queryFn: () => watchService.getWatchesByMake(makeId!, page, limit),
     enabled: enabled && makeId !== null,
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -61,7 +61,7 @@ export const useWatchesByModel = (
     queryKey: ['watchesByModel', modelId, page, limit],
     queryFn: () => watchService.getWatchesByModel(modelId!, page, limit),
     enabled: enabled && modelId !== null,
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 };
 

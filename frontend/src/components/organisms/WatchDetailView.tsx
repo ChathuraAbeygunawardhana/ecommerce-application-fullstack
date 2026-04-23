@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useWatchDetails } from "@/lib/hooks/useWatches";
-import { Spinner } from "../atoms/Spinner";
-import { Button } from "../atoms/Button";
-import { Badge } from "../atoms/Badge";
+import { Spinner } from "@/components/atoms/Spinner";
+import { Button } from "@/components/atoms/Button";
+import { Badge } from "@/components/atoms/Badge";
 
 interface WatchDetailViewProps {
   watchId: number;
@@ -12,7 +12,7 @@ interface WatchDetailViewProps {
 
 export const WatchDetailView: React.FC<WatchDetailViewProps> = ({ watchId }) => {
   const router = useRouter();
-  const { data, isLoading, error } = useWatchDetails(watchId);
+  const { data, isLoading, error, refetch } = useWatchDetails(watchId);
 
   if (isLoading) {
     return (
@@ -23,14 +23,71 @@ export const WatchDetailView: React.FC<WatchDetailViewProps> = ({ watchId }) => 
   }
 
   if (error) {
+    const isRateLimited = error.message.includes('429');
+    
     return (
-      <div className="text-center py-20 space-y-4">
-        <p className="text-red-600 dark:text-red-400">
-          Error loading watch details: {error.message}
-        </p>
-        <Button onClick={() => router.back()} variant="secondary">
-          Go Back
-        </Button>
+      <div className="text-center py-20 space-y-6">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
+          <svg
+            className="w-8 h-8 text-red-600 dark:text-red-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+        </div>
+        
+        <div>
+          <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+            {isRateLimited ? 'Too Many Requests' : 'Error Loading Watch Details'}
+          </h3>
+          <p className="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
+            {isRateLimited 
+              ? 'The API rate limit has been reached. Please wait a moment and try again.'
+              : error.message}
+          </p>
+        </div>
+
+        <div className="flex gap-3 justify-center">
+          <Button onClick={() => router.back()} variant="secondary">
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Go Back
+          </Button>
+          <Button onClick={() => refetch()} variant="primary">
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }
@@ -38,7 +95,25 @@ export const WatchDetailView: React.FC<WatchDetailViewProps> = ({ watchId }) => 
   if (!data) {
     return (
       <div className="text-center py-20 space-y-4">
-        <p className="text-zinc-500 dark:text-zinc-400">Watch not found</p>
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 mb-4">
+          <svg
+            className="w-8 h-8 text-zinc-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Watch Not Found</h3>
+        <p className="text-zinc-600 dark:text-zinc-400">
+          The watch you're looking for doesn't exist or has been removed.
+        </p>
         <Button onClick={() => router.back()} variant="secondary">
           Go Back
         </Button>

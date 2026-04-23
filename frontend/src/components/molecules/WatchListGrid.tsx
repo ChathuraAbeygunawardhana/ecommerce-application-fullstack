@@ -1,6 +1,6 @@
 import React from "react";
 import type { WatchListItem } from "@/lib/types/watch.types";
-import { Badge } from "../atoms/Badge";
+import { Badge } from "@/components/atoms/Badge";
 
 interface WatchListGridProps {
   watches: WatchListItem[];

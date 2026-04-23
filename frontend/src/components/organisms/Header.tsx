@@ -1,10 +1,10 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Logo } from '../atoms/Logo';
-import { Toggle } from '../atoms/Toggle';
-import { UserInfo } from '../molecules/UserInfo';
-import { Button } from '../atoms/Button';
+import { Logo } from '@/components/atoms/Logo';
+import { Toggle } from '@/components/atoms/Toggle';
+import { UserInfo } from '@/components/molecules/UserInfo';
+import { Button } from '@/components/atoms/Button';
 
 interface HeaderProps {
   title: string;
@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   const pathname = usePathname();
   
   return (
-    <header className="w-full bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 py-4 px-6 md:px-10 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+    <header className="w-full bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 py-4 px-6 md:px-10 flex justify-between items-center sticky top-0 z-50 shadow-sm">
       <div className="flex items-center gap-6">
         <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <Logo />

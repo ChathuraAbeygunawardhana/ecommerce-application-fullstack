@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card } from '../atoms/Card';
-import { AuthHeader } from '../molecules/AuthHeader';
-import { AuthFooter } from '../molecules/AuthFooter';
+import { Card } from '@/components/atoms/Card';
+import { AuthHeader } from '@/components/molecules/AuthHeader';
+import { AuthFooter } from '@/components/molecules/AuthFooter';
 
 interface AuthLayoutProps {
   title: string;
