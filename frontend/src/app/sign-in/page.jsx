@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -32,6 +34,10 @@ export default function SignInPage() {
             const data = await response.json();
             setSuccess("Signed in successfully!");
             console.log("Sign in success:", data);
+            
+            // Store user data and redirect
+            localStorage.setItem("user", JSON.stringify(data.user));
+            router.push("/");
         } catch (err) {
             setError(err.message);
         }
