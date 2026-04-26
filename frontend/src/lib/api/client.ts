@@ -11,6 +11,16 @@ class ApiClient {
     this.baseURL = baseURL;
   }
 
+  private getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      return {
+        'Authorization': `Bearer ${token}`,
+      };
+    }
+    return {};
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestOptions = {}
@@ -21,6 +31,7 @@ class ApiClient {
       ...restOptions,
       headers: {
         'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
         ...headers,
       },
     };

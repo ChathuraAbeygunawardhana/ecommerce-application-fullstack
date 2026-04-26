@@ -7,6 +7,7 @@ import { Spinner } from "@/components/atoms/Spinner";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
 import { FeaturedWatches } from "@/components/organisms/FeaturedWatches";
 import { BrowseCallToAction } from "@/components/organisms/BrowseCallToAction";
+import { authService } from "@/lib/services/authService";
 
 interface User {
   name: string;
@@ -49,7 +50,15 @@ export default function Home() {
       router.push("/sign-in");
     } else {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        
+        // Redirect admin users to admin dashboard
+        if (parsedUser.role === "admin") {
+          router.push("/admin");
+          return;
+        }
+        
+        setUser(parsedUser);
         setLoading(false);
       } catch (error) {
         localStorage.removeItem("user");
@@ -63,7 +72,7 @@ export default function Home() {
   };
 
   const confirmLogout = () => {
-    localStorage.removeItem("user");
+    authService.signOut();
     setShowLogoutDialog(false);
     router.push("/sign-in");
   };

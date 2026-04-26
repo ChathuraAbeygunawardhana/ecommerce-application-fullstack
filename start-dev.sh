@@ -37,7 +37,7 @@ if check_port 8000; then
     echo -e "${GREEN}✓ Backend is already running on port 8000${NC}"
 else
     echo -e "${YELLOW}Starting Backend server...${NC}"
-    gnome-terminal --tab --title="Backend" -- bash -c "cd backend && source .venv/bin/activate && uvicorn main:app --reload; exec bash"
+    gnome-terminal --tab --title="Backend" -- bash -c "cd backend && source .venv/bin/activate && uvicorn app.main:app --reload; exec bash"
     sleep 2
     echo -e "${GREEN}✓ Backend server started${NC}"
 fi

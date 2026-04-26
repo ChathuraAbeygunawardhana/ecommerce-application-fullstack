@@ -27,7 +27,13 @@ export default function SignInPage() {
                 onSuccess: (data: AuthResponse) => {
                     setSuccess("Signed in successfully!");
                     console.log("Sign in success:", data);
-                    router.push("/");
+                    
+                    // Redirect based on user role
+                    if (data.user.role === "admin") {
+                        router.push("/admin");
+                    } else {
+                        router.push("/");
+                    }
                 },
                 onError: (err: Error) => {
                     setError(err.message);
