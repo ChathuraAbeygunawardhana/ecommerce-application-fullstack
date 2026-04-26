@@ -1,10 +1,5 @@
 export const API_CONFIG = {
   BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
-  RAPIDAPI: {
-    BASE_URL: 'https://watch-database1.p.rapidapi.com',
-    KEY: process.env.NEXT_PUBLIC_RAPIDAPI_KEY || '970b4fa26fmsh397f674876f86dap1a656cjsna4e0c2863761',
-    HOST: 'watch-database1.p.rapidapi.com'
-  }
 } as const;
 
 export const API_ENDPOINTS = {
@@ -13,13 +8,9 @@ export const API_ENDPOINTS = {
     SIGN_UP: '/api/auth/sign-up'
   },
   WATCHES: {
-    SEARCH: '/search-watches-by-name',
-    MAKES: '/make',
-    MODELS: (makeId: number) => `/model/${makeId}`,
-    WATCHES_BY_MAKE: (makeId: number, page: number, limit: number) => 
-      `/watches/make/${makeId}/page/${page}/limit/${limit}`,
-    WATCHES_BY_MODEL: (modelId: number, page: number, limit: number) => 
-      `/watches/model/${modelId}/page/${page}/limit/${limit}`,
-    WATCH_DETAILS: (watchId: number) => `/watch/${watchId}`
+    LIST: '/api/watches',
+    DETAILS: (watchId: number) => `/api/watches/${watchId}`,
+    MAKES: '/api/watches/makes',
+    MODELS: '/api/watches/models'
   }
 } as const;

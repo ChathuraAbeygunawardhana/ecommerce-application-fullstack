@@ -1,20 +1,21 @@
 // Make Types
 export interface Make {
-  makeId: number;
-  makeName: string;
+  make_id: number;
+  make_name: string;
+  count: number;
 }
 
 export interface MakesResponse {
   count: number;
-  make: Make[];
+  makes: Make[];
 }
 
 // Model Types
 export interface Model {
-  modelId: number;
-  modelName: string;
-  makeId: number;
-  makeName: string;
+  model_id: number;
+  model_name: string;
+  make_name: string;
+  count: number;
 }
 
 export interface ModelsResponse {
@@ -22,127 +23,50 @@ export interface ModelsResponse {
   models: Model[];
 }
 
-// Watch List Types
-export interface WatchListItem {
-  watchId: number;
-  makeName: string;
-  modelName: string;
-  familyName: string;
-  yearProducedName: string;
-  limitedName: string;
-  descriptionContent: string | null;
-  movementName: string;
-  functionName: string;
-  priceInEuro: string;
-  reference: string;
-  watchImageName: string;
-  url: string;
+// Watch Types
+export interface Watch {
+  id: number;
+  make_name: string;
+  model_name: string;
+  family_name: string | null;
+  year_produced: string | null;
+  reference: string | null;
+  movement_name: string | null;
+  case_material: string | null;
+  case_diameter: string | null;
+  dial_color: string | null;
+  price_euro: number | null;
+  description: string | null;
+  image_url: string | null;
+  functions: string | null;
+  limited_edition: string | null;
+  water_resistance: string | null;
 }
 
 export interface WatchesListResponse {
   count: number;
   page: number;
-  allPages: number;
+  total_pages: number;
   limit: number;
-  watches: WatchListItem[];
+  watches: Watch[];
 }
 
-// Watch Details Types
-export interface WatchInfo {
-  id: number;
-  watchId: number;
-  makeName: string;
-  modelName: string;
-  familyName: string;
-  yearProducedName: string;
-  limitedName: string;
-  descriptionContent: string | null;
-  movementName: string;
-  priceInEuro: string;
-  reference: string;
+// Legacy types for backward compatibility
+export interface WatchListItem extends Watch {
+  watchId?: number;
+  makeName?: string;
+  modelName?: string;
+  familyName?: string;
+  yearProducedName?: string;
+  limitedName?: string;
+  descriptionContent?: string | null;
+  movementName?: string;
+  functionName?: string;
+  priceInEuro?: string;
+  watchImageName?: string;
+  url?: string;
 }
 
-export interface WatchFunction {
-  functionName: string;
-}
-
-export interface CaseDetail {
-  caseMaterialName: string | null;
-  caseGlassName: string | null;
-  caseBackName: string | null;
-  caseShapeName: string | null;
-  caseDiameterName: string | null;
-  caseHeightName: string | null;
-  caseLugWidthName: string | null;
-  caseBezelName: string | null;
-  caseWRName: string | null;
-  caseCoatingName: string | null;
-}
-
-export interface DialDetail {
-  dialColorName: string | null;
-  dialMaterialName: string | null;
-  dialIndexesName: string | null;
-  dialHandsName: string | null;
-  dialNickName: string | null;
-  dialFinishName: string | null;
-}
-
-export interface CaliberDetail {
-  caliberMakeName: string | null;
-  caliberReferenceName: string | null;
-  caliberDescriptionContent: string | null;
-  caliberMovementName: string | null;
-  caliberDisplayName: string | null;
-  caliberDiameterName: string | null;
-  caliberJewelsName: string | null;
-  caliberReserveName: string | null;
-  caliberFrequencyName: string | null;
-}
-
-export interface CaliberDate {
-  caliberDateName: string;
-}
-
-export interface CaliberChronograph {
-  caliberChonographName: string;
-}
-
-export interface CaliberHands {
-  caliberHandsName: string;
-}
-
-export interface CaliberAstronomical {
-  caliberAstronomicalName: string;
-}
-
-export interface CaliberAdditional {
-  caliberAdditionalsName: string;
-}
-
-export interface WatchImage {
-  watchImageId: number;
-  watchImageName: string;
-  url: string;
-}
-
-export interface CaliberImage {
-  id: number;
-  caliberImageName: string;
-  url: string;
-}
-
-export interface WatchDetailsResponse {
-  watch: WatchInfo;
-  watchFunctions: WatchFunction[];
-  caseDetails: CaseDetail[];
-  dialDetails: DialDetail[];
-  caliberDetails: CaliberDetail[];
-  caliberDate: CaliberDate[];
-  caliberChronograph: CaliberChronograph[];
-  caliberHands: CaliberHands[];
-  caliberAstronomicals: CaliberAstronomical[];
-  caliberAdditionals: CaliberAdditional[];
-  watchImages: WatchImage[];
-  caliberImages: CaliberImage[];
+export interface WatchDetailsResponse extends Watch {
+  // Extended details can be added here if needed
 }

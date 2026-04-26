@@ -1,22 +1,31 @@
 import { useQuery } from '@tanstack/react-query';
-import { watchService, type Watch, type SearchWatchesRequest } from '../services/watchService';
+import { watchService, type SearchWatchesParams } from '../services/watchService';
 import type {
   MakesResponse,
   ModelsResponse,
   WatchesListResponse,
-  WatchDetailsResponse,
+  Watch,
 } from '../types/watch.types';
 
-// Existing search hook
-export const useSearchWatches = (params: SearchWatchesRequest, enabled: boolean = true) => {
-  return useQuery<Watch[], Error>({
-    queryKey: ['watches', params.searchTerm, params.page, params.limit],
-    queryFn: () => watchService.searchWatches(params),
-    enabled: enabled && !!params.searchTerm,
+// Hook to search watches
+export const useSearchWatches = (searchTerm: string, page: number = 1, limit: number = 20, enabled: boolean = true) => {
+  return useQuery<WatchesListResponse, Error>({
+    queryKey: ['watches', 'search', searchTerm, page, limit],
+    queryFn: () => watchService.searchWatches(searchTerm, page, limit),
+    enabled: enabled && !!searchTerm,
   });
 };
 
-// 1. Hook to get all watch makes
+// Hook to get all watches with filters
+export const useWatches = (params: SearchWatchesParams = {}, enabled: boolean = true) => {
+  return useQuery<WatchesListResponse, Error>({
+    queryKey: ['watches', params],
+    queryFn: () => watchService.getWatches(params),
+    enabled,
+  });
+};
+
+// Hook to get all watch makes
 export const useWatchMakes = () => {
   return useQuery<MakesResponse, Error>({
     queryKey: ['watchMakes'],
@@ -25,49 +34,49 @@ export const useWatchMakes = () => {
   });
 };
 
-// 2. Hook to get models by make ID
-export const useModelsByMake = (makeId: number | null, enabled: boolean = true) => {
+// Hook to get models, optionally filtered by make
+export const useWatchModels = (make?: string, enabled: boolean = true) => {
   return useQuery<ModelsResponse, Error>({
-    queryKey: ['watchModels', makeId],
-    queryFn: () => watchService.getModelsByMake(makeId!),
-    enabled: enabled && makeId !== null,
+    queryKey: ['watchModels', make],
+    queryFn: () => watchService.getModels(make),
+    enabled,
     staleTime: 1000 * 60 * 30, // Cache for 30 minutes
   });
 };
 
-// 3. Hook to get paginated watches by make
+// Hook to get paginated watches by make
 export const useWatchesByMake = (
-  makeId: number | null,
+  makeName: string | null,
   page: number = 1,
   limit: number = 20,
   enabled: boolean = true
 ) => {
   return useQuery<WatchesListResponse, Error>({
-    queryKey: ['watchesByMake', makeId, page, limit],
-    queryFn: () => watchService.getWatchesByMake(makeId!, page, limit),
-    enabled: enabled && makeId !== null,
+    queryKey: ['watchesByMake', makeName, page, limit],
+    queryFn: () => watchService.getWatchesByMake(makeName!, page, limit),
+    enabled: enabled && !!makeName,
     placeholderData: (previousData) => previousData,
   });
 };
 
-// 4. Hook to get paginated watches by model
+// Hook to get paginated watches by model
 export const useWatchesByModel = (
-  modelId: number | null,
+  modelName: string | null,
   page: number = 1,
   limit: number = 20,
   enabled: boolean = true
 ) => {
   return useQuery<WatchesListResponse, Error>({
-    queryKey: ['watchesByModel', modelId, page, limit],
-    queryFn: () => watchService.getWatchesByModel(modelId!, page, limit),
-    enabled: enabled && modelId !== null,
+    queryKey: ['watchesByModel', modelName, page, limit],
+    queryFn: () => watchService.getWatchesByModel(modelName!, page, limit),
+    enabled: enabled && !!modelName,
     placeholderData: (previousData) => previousData,
   });
 };
 
-// 5. Hook to get full watch details
+// Hook to get full watch details
 export const useWatchDetails = (watchId: number | null, enabled: boolean = true) => {
-  return useQuery<WatchDetailsResponse, Error>({
+  return useQuery<Watch, Error>({
     queryKey: ['watchDetails', watchId],
     queryFn: () => watchService.getWatchDetails(watchId!),
     enabled: enabled && watchId !== null,

@@ -1,29 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useWatchMakes, useWatchesByMake } from "@/lib/hooks/useWatches";
 import { WatchListGrid } from "@/components/molecules/WatchListGrid";
+import { WatchListView } from "@/components/molecules/WatchListView";
 import { Pagination } from "@/components/molecules/Pagination";
 import { Spinner } from "@/components/atoms/Spinner";
+import { ViewToggle } from "@/components/atoms/ViewToggle";
 
 export const BrowseByMake: React.FC = () => {
   const router = useRouter();
-  const [selectedMakeId, setSelectedMakeId] = useState<number | null>(null);
+  const [selectedMakeName, setSelectedMakeName] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const limit = 20;
 
   const { data: makesData, isLoading: makesLoading } = useWatchMakes();
   const { data: watchesData, isLoading: watchesLoading, error: watchesError } = useWatchesByMake(
-    selectedMakeId,
+    selectedMakeName,
     page,
     limit,
-    !!selectedMakeId
+    !!selectedMakeName
   );
 
-  const handleMakeSelect = (makeId: number) => {
-    setSelectedMakeId(makeId);
+  // Auto-select first make on initial load
+  useEffect(() => {
+    if (makesData && makesData.makes.length > 0 && !selectedMakeName) {
+      setSelectedMakeName(makesData.makes[0].make_name);
+    }
+  }, [makesData, selectedMakeName]);
+
+  const handleMakeSelect = (makeName: string) => {
+    setSelectedMakeName(makeName);
     setPage(1);
   };
 
@@ -31,11 +41,9 @@ export const BrowseByMake: React.FC = () => {
     router.push(`/watch/${watchId}`);
   };
 
-  const selectedMake = makesData?.make.find((m: { makeId: number; makeName: string }) => m.makeId === selectedMakeId);
-
   // Filter makes based on search
-  const filteredMakes = makesData?.make.filter((make: { makeName: string }) =>
-    make.makeName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredMakes = makesData?.makes.filter((make) =>
+    make.make_name.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
   return (
@@ -83,17 +91,20 @@ export const BrowseByMake: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-1 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-              {filteredMakes.map((make: { makeId: number; makeName: string }) => (
+              {filteredMakes.map((make) => (
                 <button
-                  key={make.makeId}
-                  onClick={() => handleMakeSelect(make.makeId)}
+                  key={make.make_id}
+                  onClick={() => handleMakeSelect(make.make_name)}
                   className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    selectedMakeId === make.makeId
+                    selectedMakeName === make.make_name
                       ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900"
                       : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                   }`}
                 >
-                  {make.makeName}
+                  <div className="flex justify-between items-center">
+                    <span>{make.make_name}</span>
+                    <span className="text-xs opacity-60">({make.count})</span>
+                  </div>
                 </button>
               ))}
               {filteredMakes.length === 0 && (
@@ -108,7 +119,7 @@ export const BrowseByMake: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 min-w-0">
-        {!selectedMakeId ? (
+        {!selectedMakeName ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <svg
               className="w-16 h-16 text-zinc-300 dark:text-zinc-700 mb-4"
@@ -133,10 +144,10 @@ export const BrowseByMake: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white">
-                  {selectedMake?.makeName}
+                  {selectedMakeName}
                 </h2>
                 {watchesData && (
                   <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
@@ -144,6 +155,7 @@ export const BrowseByMake: React.FC = () => {
                   </p>
                 )}
               </div>
+              <ViewToggle view={viewMode} onViewChange={setViewMode} />
             </div>
 
             {/* Watches Grid */}
@@ -169,23 +181,28 @@ export const BrowseByMake: React.FC = () => {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
-                  {watchesError.message.includes('429') ? 'Rate Limit Reached' : 'Error Loading Watches'}
+                  Error Loading Watches
                 </h3>
                 <p className="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
-                  {watchesError.message.includes('429')
-                    ? 'Too many requests. Please wait a moment and try again.'
-                    : watchesError.message}
+                  {watchesError.message}
                 </p>
               </div>
             ) : watchesData && watchesData.watches.length > 0 ? (
               <>
-                <WatchListGrid
-                  watches={watchesData.watches}
-                  onWatchClick={handleWatchClick}
-                />
+                {viewMode === 'grid' ? (
+                  <WatchListGrid
+                    watches={watchesData.watches}
+                    onWatchClick={handleWatchClick}
+                  />
+                ) : (
+                  <WatchListView
+                    watches={watchesData.watches}
+                    onWatchClick={handleWatchClick}
+                  />
+                )}
                 <Pagination
                   currentPage={page}
-                  totalPages={watchesData.allPages}
+                  totalPages={watchesData.total_pages}
                   onPageChange={setPage}
                 />
               </>

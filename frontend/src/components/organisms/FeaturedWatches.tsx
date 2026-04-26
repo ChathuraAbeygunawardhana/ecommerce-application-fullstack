@@ -1,14 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useWatchesByMake } from "@/lib/hooks/useWatches";
+import { useWatches } from "@/lib/hooks/useWatches";
 import { Spinner } from "@/components/atoms/Spinner";
 
 export const FeaturedWatches: React.FC = () => {
   const router = useRouter();
   
-  // Fetch some Rolex watches as featured (makeId: 137)
-  const { data: watchesData, isLoading, error } = useWatchesByMake(137, 1, 8);
+  // Fetch first 8 watches as featured
+  const { data: watchesData, isLoading, error } = useWatches({ page: 1, limit: 8 });
 
   if (isLoading) {
     return (
@@ -46,12 +46,10 @@ export const FeaturedWatches: React.FC = () => {
             </svg>
           </div>
           <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
-            {error.message.includes('429') ? 'Rate Limit Reached' : 'Error Loading Watches'}
+            Error Loading Watches
           </h3>
           <p className="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
-            {error.message.includes('429')
-              ? 'Too many requests. Please wait a moment and refresh the page.'
-              : 'Unable to load featured watches at this time.'}
+            Unable to load featured watches at this time.
           </p>
         </div>
       </section>
@@ -95,19 +93,22 @@ export const FeaturedWatches: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {watchesData.watches.slice(0, 8).map((watch: any) => (
+        {watchesData.watches.map((watch) => (
           <button
-            key={watch.watchId}
-            onClick={() => router.push(`/watch/${watch.watchId}`)}
+            key={watch.id}
+            onClick={() => router.push(`/watch/${watch.id}`)}
             className="group text-left bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden hover:shadow-xl hover:shadow-zinc-200/50 dark:hover:shadow-black/50 transition-all duration-300 hover:-translate-y-1"
           >
             {/* Image */}
             <div className="aspect-square bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative">
-              {watch.url ? (
+              {watch.image_url ? (
                 <img
-                  src={watch.url}
-                  alt={watch.modelName}
+                  src={watch.image_url}
+                  alt={`${watch.make_name} ${watch.model_name}`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23e4e4e7" width="400" height="400"/%3E%3Ctext fill="%2371717a" font-family="sans-serif" font-size="24" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -142,17 +143,17 @@ export const FeaturedWatches: React.FC = () => {
             <div className="p-5 space-y-2">
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-full text-xs font-semibold">
-                  {watch.makeName}
+                  {watch.make_name}
                 </span>
-                {watch.yearProducedName && (
+                {watch.year_produced && (
                   <span className="text-xs text-zinc-400 font-medium">
-                    {watch.yearProducedName}
+                    {watch.year_produced}
                   </span>
                 )}
               </div>
 
               <h3 className="text-base font-bold text-zinc-900 dark:text-white leading-tight line-clamp-2 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
-                {watch.modelName}
+                {watch.model_name}
               </h3>
 
               {watch.reference && (

@@ -10,17 +10,26 @@ echo -e "${YELLOW}Stopping development environment...${NC}\n"
 
 # Stop Frontend (port 3000)
 echo -e "${YELLOW}Stopping Frontend...${NC}"
-if lsof -ti:3000 > /dev/null 2>&1; then
-    kill -9 $(lsof -ti:3000) 2>/dev/null
-    echo -e "${GREEN}✓ Frontend stopped${NC}"
+FRONTEND_PIDS=$(lsof -ti:3000 2>/dev/null)
+if [ -n "$FRONTEND_PIDS" ]; then
+    echo "$FRONTEND_PIDS" | xargs kill -9 2>/dev/null
+    sleep 1
+    # Verify it's stopped
+    if lsof -ti:3000 > /dev/null 2>&1; then
+        echo -e "${RED}✗ Frontend may still be running${NC}"
+    else
+        echo -e "${GREEN}✓ Frontend stopped${NC}"
+    fi
 else
     echo -e "${GREEN}✓ Frontend was not running${NC}"
 fi
 
 # Stop Backend (port 8000)
 echo -e "\n${YELLOW}Stopping Backend...${NC}"
-if lsof -ti:8000 > /dev/null 2>&1; then
-    kill -9 $(lsof -ti:8000) 2>/dev/null
+BACKEND_PIDS=$(lsof -ti:8000 2>/dev/null)
+if [ -n "$BACKEND_PIDS" ]; then
+    echo "$BACKEND_PIDS" | xargs kill -9 2>/dev/null
+    sleep 1
     echo -e "${GREEN}✓ Backend stopped${NC}"
 else
     echo -e "${GREEN}✓ Backend was not running${NC}"

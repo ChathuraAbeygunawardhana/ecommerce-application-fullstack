@@ -1,44 +1,60 @@
 import React from 'react';
 import { Badge } from '@/components/atoms/Badge';
+import type { Watch } from '@/lib/types/watch.types';
 
 interface WatchCardProps {
-  makeName: string;
-  modelName: string;
-  familyName?: string;
-  yearProducedName?: string;
-  reference?: string;
-  movementName?: string;
-  priceInEuro?: number;
+  watch: Watch;
+  onClick?: () => void;
 }
 
-export const WatchCard: React.FC<WatchCardProps> = ({
-  makeName,
-  modelName,
-  familyName,
-  yearProducedName,
-  reference,
-  movementName,
-  priceInEuro
-}) => {
+export const WatchCard: React.FC<WatchCardProps> = ({ watch, onClick }) => {
+  const {
+    make_name,
+    model_name,
+    family_name,
+    year_produced,
+    reference,
+    movement_name,
+    price_euro,
+    image_url,
+  } = watch;
+
   return (
-    <div className="group flex flex-col bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden hover:shadow-xl hover:shadow-zinc-200/50 dark:hover:shadow-black/50 transition-all duration-300 hover:-translate-y-1">
+    <div 
+      onClick={onClick}
+      className="group flex flex-col bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden hover:shadow-xl hover:shadow-zinc-200/50 dark:hover:shadow-black/50 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+    >
+      {/* Image */}
+      {image_url && (
+        <div className="relative w-full aspect-square bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+          <img
+            src={image_url}
+            alt={`${make_name} ${model_name}`}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23e4e4e7" width="400" height="400"/%3E%3Ctext fill="%2371717a" font-family="sans-serif" font-size="24" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
+            }}
+          />
+        </div>
+      )}
+      
       <div className="p-6 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-4">
-          <Badge>{makeName}</Badge>
-          {yearProducedName && (
+          <Badge>{make_name}</Badge>
+          {year_produced && (
             <span className="text-xs text-zinc-400 font-medium">
-              {yearProducedName}
+              {year_produced}
             </span>
           )}
         </div>
         
         <h3 className="text-xl font-bold text-zinc-900 dark:text-white leading-tight mb-2 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
-          {modelName}
+          {model_name}
         </h3>
         
-        {familyName && (
+        {family_name && (
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6 font-medium">
-            {familyName} Family
+            {family_name} Family
           </p>
         )}
         
@@ -51,19 +67,19 @@ export const WatchCard: React.FC<WatchCardProps> = ({
               </span>
             </div>
           )}
-          {movementName && (
+          {movement_name && (
             <div className="flex justify-between items-center text-sm border-t border-zinc-100 dark:border-zinc-800/50 pt-3">
               <span className="text-zinc-500 dark:text-zinc-400">Movement</span>
-              <span className="font-medium text-zinc-900 dark:text-zinc-300 truncate max-w-[150px]" title={movementName}>
-                {movementName}
+              <span className="font-medium text-zinc-900 dark:text-zinc-300 truncate max-w-[150px]" title={movement_name}>
+                {movement_name}
               </span>
             </div>
           )}
-          {priceInEuro && (
+          {price_euro && (
             <div className="flex justify-between items-center text-sm border-t border-zinc-100 dark:border-zinc-800/50 pt-3">
               <span className="text-zinc-500 dark:text-zinc-400">Price</span>
               <span className="font-bold text-zinc-900 dark:text-white">
-                €{Number(priceInEuro).toLocaleString()}
+                €{Number(price_euro).toLocaleString()}
               </span>
             </div>
           )}
