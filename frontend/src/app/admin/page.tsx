@@ -6,12 +6,22 @@ import { AdminLayout } from "@/components/templates/AdminLayout";
 import { AdminAnalytics } from "@/components/organisms/AdminAnalytics";
 import { AdminUsersTable } from "@/components/organisms/AdminUsersTable";
 import { RecentCustomers } from "@/components/organisms/RecentCustomers";
+import { AdminWatchesTable } from "@/components/organisms/AdminWatchesTable";
 import { TabNavigation } from "@/components/molecules/TabNavigation";
 import { Spinner } from "@/components/atoms/Spinner";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
 import { Alert } from "@/components/atoms/Alert";
-import { useAnalytics, useAllUsers, useCustomers } from "@/lib/hooks/useAdmin";
+import { 
+  useAnalytics, 
+  useAllUsers, 
+  useCustomers,
+  useAdminWatches,
+  useCreateWatch,
+  useUpdateWatch,
+  useDeleteWatch
+} from "@/lib/hooks/useAdmin";
 import { authService } from "@/lib/services/authService";
+import type { WatchCreate } from "@/lib/services/adminService";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -22,6 +32,11 @@ export default function AdminDashboard() {
   const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useAnalytics();
   const { data: allUsers, isLoading: usersLoading, error: usersError } = useAllUsers();
   const { data: customers, isLoading: customersLoading, error: customersError } = useCustomers();
+  const { data: watchesData, isLoading: watchesLoading, error: watchesError } = useAdminWatches(1, 100);
+  
+  const createWatchMutation = useCreateWatch();
+  const updateWatchMutation = useUpdateWatch();
+  const deleteWatchMutation = useDeleteWatch();
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
@@ -53,6 +68,18 @@ export default function AdminDashboard() {
     setShowLogoutDialog(false);
   };
 
+  const handleCreateWatch = async (watch: WatchCreate) => {
+    await createWatchMutation.mutateAsync(watch);
+  };
+
+  const handleUpdateWatch = async (id: number, watch: WatchCreate) => {
+    await updateWatchMutation.mutateAsync({ id, watch });
+  };
+
+  const handleDeleteWatch = async (id: number) => {
+    await deleteWatchMutation.mutateAsync(id);
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
@@ -63,6 +90,7 @@ export default function AdminDashboard() {
 
   const tabs = [
     { id: "overview", label: "Overview" },
+    { id: "watches", label: "Watches", count: watchesData?.count },
     { id: "users", label: "All Users", count: allUsers?.length },
     { id: "customers", label: "Customers", count: customers?.length },
   ];
@@ -110,6 +138,32 @@ export default function AdminDashboard() {
               ) : (
                 <Alert variant="error">
                   No analytics data available
+                </Alert>
+              )}
+            </div>
+          )}
+
+          {activeTab === "watches" && (
+            <div>
+              {watchesLoading ? (
+                <div className="flex justify-center py-12">
+                  <Spinner size="md" />
+                </div>
+              ) : watchesError ? (
+                <Alert variant="error">
+                  Failed to load watches. Please try signing in again.
+                </Alert>
+              ) : watchesData?.watches ? (
+                <AdminWatchesTable
+                  watches={watchesData.watches}
+                  onCreateWatch={handleCreateWatch}
+                  onUpdateWatch={handleUpdateWatch}
+                  onDeleteWatch={handleDeleteWatch}
+                  isLoading={createWatchMutation.isPending || updateWatchMutation.isPending || deleteWatchMutation.isPending}
+                />
+              ) : (
+                <Alert variant="error">
+                  No watches data available
                 </Alert>
               )}
             </div>
